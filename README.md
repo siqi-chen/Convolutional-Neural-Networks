@@ -12,6 +12,7 @@ https://www.youtube.com/watch?v=Z91YCMvxdo0&list=PLBAGcD3siRDjBU8sKRk0zX9pMz9qeV
 
 
 <hr>
+
 #### Table of Contents:
 
 <ol start="0">
@@ -20,8 +21,8 @@ https://www.youtube.com/watch?v=Z91YCMvxdo0&list=PLBAGcD3siRDjBU8sKRk0zX9pMz9qeV
   <li>Pooling Layer</li>
 </ol>
 
-<hr>
-### 0. Overview
+<hr>   
+### 0. Overview    
 #### 0.1 Computer Vision Problem
 Image Classification/ Recognization: takes an input image, and classify it under certain categories (Eg., Dog, Cat, Tiger, Lion).
 
@@ -40,7 +41,7 @@ The convolution operation is typically denoted with an asterisk `*`.
 #### 1.1 Architecture
 Neurons in the first convolutional layer are not connected to every single pixel in the input image, but only to a local region of the input volume. The spatial extent of this connectivity is a hyperparameter called the **receptive field** of the neuron (equivalently this is the filter size). A **filter** that applies on the receptive field is also referred to as a **kernel** or a **neuron**. The output is called an **activation map** or **feature map**.
 
-<p align='center'><img src='/images/convolution schematic.gif' width="60%"></img></p><p align='center'>The convolution operation. The output matrix is called Convolved Feature (or Feature Map, Activation Map). http://deeplearning.stanford.edu/wiki/index.php/Feature_extraction_using_convolution. </p> 
+<p align='center'><img src='/images/convolution schematic.gif' width="60%"></img></p><p align='center'>The convolution operation. The output matrix is called Convolved Feature (or Feature Map, Activation Map). http://deeplearning.stanford.edu/wiki/index.php/Feature_extraction_using_convolution. </p>
 
 > It is important to emphasize the asymmetry in how we treat the spatial dimensions (width and height) and the depth dimension: The connections are local in space (along width and height), but always full along the entire depth of the input volume. In turn, each neuron in the second convolutional layer is connected only to neurons located within a small rectangle in the first layer. This architecture allows the network to concentrate on low-level features in the first hidden layer, then assemble them into higher-level features in the next hidden layer, and so on.
 
