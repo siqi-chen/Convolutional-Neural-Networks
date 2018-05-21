@@ -1,7 +1,7 @@
 # Convolutional Neural Networks (CNNs / ConvNets)
 
 
-#### Reference:
+### Reference:
 - http://cs231n.github.io/convolutional-networks/
 - Géron, Aurélien. Hands-on machine learning with Scikit-Learn and TensorFlow: concepts, tools, and techniques to build intelligent systems. " O'Reilly Media, Inc.", 2017.
 - Goodfellow, Ian, et al. Deep learning. Cambridge: MIT press, 2016.
@@ -13,7 +13,7 @@ https://www.youtube.com/watch?v=Z91YCMvxdo0&list=PLBAGcD3siRDjBU8sKRk0zX9pMz9qeV
 
 <hr>
 
-#### Table of Contents:
+### Table of Contents:
 
 <ol start="0">
   <li>Overview</li>
@@ -22,8 +22,9 @@ https://www.youtube.com/watch?v=Z91YCMvxdo0&list=PLBAGcD3siRDjBU8sKRk0zX9pMz9qeV
 </ol>
 
 <hr>      
-### 0. Overview  
-#### 0.1 Computer Vision Problem
+
+## 0. Overview  
+### 0.1 Computer Vision Problem
 Image Classification/ Recognization: takes an input image, and classify it under certain categories (Eg., Dog, Cat, Tiger, Lion).
 
 Object Detection:
@@ -34,11 +35,11 @@ convolution operation
 
 Convolution is a specialized kind of linear operation. Convolutional networks are neural networks that use convolution in place of general matrix multiplication in at least one of their layers.
 
-#### 0.2 Convolution Operation
+### 0.2 Convolution Operation
 The convolution operation is typically denoted with an asterisk `*`.
 
-### 1. Convolutional Layer
-#### 1.1 Architecture
+## 1. Convolutional Layer
+### 1.1 Architecture
 Neurons in the first convolutional layer are not connected to every single pixel in the input image, but only to a local region of the input volume. The spatial extent of this connectivity is a hyperparameter called the **receptive field** of the neuron (equivalently this is the filter size). A **filter** that applies on the receptive field is also referred to as a **kernel** or a **neuron**. The output is called an **activation map** or **feature map**.
 
 <p align='center'><img src='/images/convolution schematic.gif' width="60%"></img></p><p align='center'>The convolution operation. The output matrix is called Convolved Feature (or Feature Map, Activation Map). http://deeplearning.stanford.edu/wiki/index.php/Feature_extraction_using_convolution. </p>
@@ -54,7 +55,7 @@ The convolutional layer’s parameters consist of a set of learnable filters. Ev
 1. Suppose that the input volume has size [32x32x3]. If the receptive field (or the filter size) is 5x5, then each neuron in the convolutional layer will have weights to a [5x5x3] region in the input volume, for a total of 5x5x3 = 75 weights (and +1 bias parameter). Notice that the extent of the connectivity along the depth axis must be 3, since this is the depth of the input volume.
 2. Suppose an input volume had size [16x16x20]. Then using an example receptive field size of 3x3, every neuron in the convolutional layer would now have a total of 3x3x20 = 180 connections to the input volume. Notice that, again, the connectivity is local in space (e.g. 3x3), but full along the input depth (20).
 
-#### 1.2 Spatial Arrangement
+### 1.2 Spatial Arrangement
 Three hyperparameters control the size of the output volume: the **depth**, **stride** and **padding**.
 
 The **depth** corresponds to the number of filters we would like to use, each learning to look for something different in the input. For example, if the first Convolutional Layer takes as input the raw image, then different neurons along the depth dimension may activate in presence of various oriented edges, or blobs of color.
@@ -78,10 +79,10 @@ A common setting of the hyperparameters is ***F***=3, ***S***=1, ***P***=1.
 2. *Real-world example.* The Krizhevsky et al. architecture that won the ImageNet challenge in 2012 accepted images of size [227x227x3]. On the first convolutional layer, it used neurons with receptive field size F=11, stride S=4 and no zero padding P=0. Since (227 - 11)/4 + 1 = 55, and since the convolutional layer had a depth of K=96, the output volume had size [55x55x96]. Each of the 55x55x96 neurons in this volume was connected to a region of size [11x11x3] in the input volume. Moreover, all 96 neurons in each depth column are connected to the same [11x11x3] region of the input, but of course with different weights.
 
 
-#### 1.3 Parameter Sharing
+### 1.3 Parameter Sharing
 Using the real-world example above, we see that there are 55x55x96 = 290,400 neurons in the first convolutional layer, and each has 11x11x3 = 363 weights and 1 bias. Together, this adds up to 290400 x 364 = 105,705,600 parameters on the first layer of the ConvNet alone. Clearly, this number is very high. It turns out that we can dramatically reduce the number of parameters by making one reasonable assumption: if one feature is useful to compute at some spatial position, then it should also be useful to compute at a different position. In other words, denoting a single 2-dimensional slice of depth as a depth slice (e.g. a volume of size [55x55x96] has 96 depth slices, each of size [55x55]), we are going to constrain the neurons in each depth slice to use the same weights and bias. With this parameter sharing scheme, the first convolutional layer in our example would now have only 96 unique set of weights (one for each depth slice), for a total of 96x11x11x3 = 34,848 unique weights, or 34,944 parameters (+96 biases). Alternatively, all 55x55 neurons in each depth slice will now be using the same parameters. (In practice during backpropagation, every neuron in the volume will compute the gradient for its weights, but these gradients will be added up across each depth slice and only update a single set of weights per slice.)
 
-#### 1.4 Examples
+### 1.4 Examples
 Suppose that the input volume `X` has shape `X.shape: (11,11,4)`. Suppose further that we use no zero padding (***P=0***), that the filter size is ***F=5***, and that the stride is ***S=2***. The output volume would therefore have spatial size (***11-5***)/***2+1 = 4***, giving a volume with width and height of 4. The activation map in the output volume (call it `V`) would then look as follows (only some of the elements are computed in this example):
 
 `V[0,0,0] = np.sum(X[:5,:5,:] * W0) + b0`  
@@ -105,8 +106,8 @@ A more concrete example is shown below. The input volume (in blue), the weight v
 
 <p align='center'><img src='/images/conv example.png' width="80%"></p><p align='center'>Convolutional Layer</p>
 
-#### 1.5 Implementation
-##### Matrix Multiplication
+### 1.5 Implementation
+#### Matrix Multiplication
 The convolution operation essentially performs dot products between the filters and local regions of the input. The local regions in the input image are stretched out into columns in an operation commonly called **im2col**.
 
 For example, if the input is [227x227x3] and it is to be convolved with 11x11x3 filters at stride 4, then we would take [11x11x3] blocks of pixels in the input and stretch each block into a column vector of size 11x11x3 = 363. Iterating this process in the input at stride of 4 gives (227-11)/4+1 = 55 locations along both width and height, leading to an output matrix `X_col` of **im2col** of size [363 x 3025], where every column is a stretched out receptive field and there are 55x55 = 3025 of them in total. Note that since the receptive fields overlap, every number in the input volume may be duplicated in multiple distinct columns.
@@ -117,10 +118,10 @@ The result of a convolution is now equivalent to performing one large matrix mul
 
 This approach has the downside that it can use a lot of memory, since some values in the input volume are replicated multiple times in `X_col`.
 
-##### Backpropagation
+#### Backpropagation
 ...
 
-### 2. Pooling Layer
+## 2. Pooling Layer
 It is common to periodically insert a **pooling layer** in-between successive convolutional layers in a ConvNet architecture. Its function is to progressively reduce the spatial size of the representation to reduce the amount of parameters and computation in the network, and hence to also limit the risk of overfitting. Reducing the input image size also makes the neural network tolerate a little bit of image shift (location invariance).
 
 Just like in convolutional layers, each neuron in a pooling layer is connected to the outputs of a limited number of neurons in the previous layer, located within a small rectangular receptive field. You must define its size, the stride, and the padding type, just like before. However, a pooling neuron has no weights; all it does is aggregate the inputs using an **aggregation function** such as the max or mean. Average pooling was often used historically but has recently fallen out of favor compared to the max pooling operation, which has been shown to work better in practice.
@@ -134,14 +135,14 @@ More generally, the pooling layer accepts a value of size ***W*** x ***H*** x **
 
 > Many people dislike the pooling operation and think that we can get away without it. To reduce the size of the representation they suggest using larger stride in convolutional layer once in a while. Discarding pooling layers has also been found to be important in training good generative models, such as variational autoencoders (VAEs) or generative adversarial networks (GANs). It seems likely that future architectures will feature very few to no pooling layers.
 
-### 3. Normalization Layer
+## 3. Normalization Layer
 
 
 
-### 4. Fully-connected layer
+## 4. Fully-connected layer
 
 
-### 5. TensorFlow Implementation
+## 5. TensorFlow Implementation
 
 "Valid" convolution: no padding.
 "Same" convolution: pad so that output size is the same as the input size.
