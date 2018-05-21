@@ -21,8 +21,8 @@ https://www.youtube.com/watch?v=Z91YCMvxdo0&list=PLBAGcD3siRDjBU8sKRk0zX9pMz9qeV
   <li>Pooling Layer</li>
 </ol>
 
-<hr>   
-### 0. Overview    
+<hr>      
+### 0. Overview  
 #### 0.1 Computer Vision Problem
 Image Classification/ Recognization: takes an input image, and classify it under certain categories (Eg., Dog, Cat, Tiger, Lion).
 
