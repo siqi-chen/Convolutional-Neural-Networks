@@ -15,16 +15,18 @@ https://www.youtube.com/watch?v=Z91YCMvxdo0&list=PLBAGcD3siRDjBU8sKRk0zX9pMz9qeV
 
 ### Table of Contents:
 
-<ol start="0">
-  <li>Overview</li>
-  <li>Convolutional Layer</li>
-  <li>Pooling Layer</li>
-</ol>
+1. Overview
+2. Convolutional Layer
+3. Pooling Layer
+4. Normalization Layer
+5. Fully-connected layer
+6. TensorFlow Implementation
+
 
 <hr>      
 
-## 0. Overview  
-### 0.1 Computer Vision Problem
+## 1. Overview  
+### 1.1 Computer Vision Problem
 Image Classification/ Recognization: takes an input image, and classify it under certain categories (Eg., Dog, Cat, Tiger, Lion).
 
 Object Detection:
@@ -35,11 +37,18 @@ convolution operation
 
 Convolution is a specialized kind of linear operation. Convolutional networks are neural networks that use convolution in place of general matrix multiplication in at least one of their layers.
 
-### 0.2 Convolution Operation
+### 1.2 Convolution Operation
 The convolution operation is typically denoted with an asterisk `*`.
 
-## 1. Convolutional Layer
-### 1.1 Architecture
+
+### 1.3 CNN Architectures
+Typical CNN architectures stack a few convolutional layers (each one generally followed by a ReLU layer), then a pooling layer, then another few convolutional layers (+ReLU), then another pooling layer, and so on. The image gets smaller and smaller as it progresses through the network, but it also typically gets deeper and deeper (i.e., with more feature maps) thanks to the convolutional layers. At the top of the stack, a regular feedforward neural network is added, composed of a few fully connected layers (+ReLUs), and the final layer outputs the prediction (e.g., a softmax layer that outputs estimated class probabilities).
+
+<p align='center'><img src='/images/typical CNN architecture.png' width="100%"></img></p><p align='center'>Typical CNN architecture</p>
+
+
+## 2. Convolutional Layer
+### 2.1 Architecture
 Neurons in the first convolutional layer are not connected to every single pixel in the input image, but only to a local region of the input volume. The spatial extent of this connectivity is a hyperparameter called the **receptive field** of the neuron (equivalently this is the filter size). A **filter** that applies on the receptive field is also referred to as a **kernel** or a **neuron**. The output is called an **activation map** or **feature map**.
 
 <p align='center'><img src='/images/convolution schematic.gif' width="60%"></img></p><p align='center'>The convolution operation. The output matrix is called Convolved Feature (or Feature Map, Activation Map). http://deeplearning.stanford.edu/wiki/index.php/Feature_extraction_using_convolution. </p>
@@ -55,7 +64,7 @@ The convolutional layer’s parameters consist of a set of learnable filters. Ev
 1. Suppose that the input volume has size [32x32x3]. If the receptive field (or the filter size) is 5x5, then each neuron in the convolutional layer will have weights to a [5x5x3] region in the input volume, for a total of 5x5x3 = 75 weights (and +1 bias parameter). Notice that the extent of the connectivity along the depth axis must be 3, since this is the depth of the input volume.
 2. Suppose an input volume had size [16x16x20]. Then using an example receptive field size of 3x3, every neuron in the convolutional layer would now have a total of 3x3x20 = 180 connections to the input volume. Notice that, again, the connectivity is local in space (e.g. 3x3), but full along the input depth (20).
 
-### 1.2 Spatial Arrangement
+### 2.2 Spatial Arrangement
 Three hyperparameters control the size of the output volume: the **depth**, **stride** and **padding**.
 
 The **depth** corresponds to the number of filters we would like to use, each learning to look for something different in the input. For example, if the first Convolutional Layer takes as input the raw image, then different neurons along the depth dimension may activate in presence of various oriented edges, or blobs of color.
@@ -79,10 +88,10 @@ A common setting of the hyperparameters is ***F***=3, ***S***=1, ***P***=1.
 2. *Real-world example.* The Krizhevsky et al. architecture that won the ImageNet challenge in 2012 accepted images of size [227x227x3]. On the first convolutional layer, it used neurons with receptive field size F=11, stride S=4 and no zero padding P=0. Since (227 - 11)/4 + 1 = 55, and since the convolutional layer had a depth of K=96, the output volume had size [55x55x96]. Each of the 55x55x96 neurons in this volume was connected to a region of size [11x11x3] in the input volume. Moreover, all 96 neurons in each depth column are connected to the same [11x11x3] region of the input, but of course with different weights.
 
 
-### 1.3 Parameter Sharing
+### 2.3 Parameter Sharing
 Using the real-world example above, we see that there are 55x55x96 = 290,400 neurons in the first convolutional layer, and each has 11x11x3 = 363 weights and 1 bias. Together, this adds up to 290400 x 364 = 105,705,600 parameters on the first layer of the ConvNet alone. Clearly, this number is very high. It turns out that we can dramatically reduce the number of parameters by making one reasonable assumption: if one feature is useful to compute at some spatial position, then it should also be useful to compute at a different position. In other words, denoting a single 2-dimensional slice of depth as a depth slice (e.g. a volume of size [55x55x96] has 96 depth slices, each of size [55x55]), we are going to constrain the neurons in each depth slice to use the same weights and bias. With this parameter sharing scheme, the first convolutional layer in our example would now have only 96 unique set of weights (one for each depth slice), for a total of 96x11x11x3 = 34,848 unique weights, or 34,944 parameters (+96 biases). Alternatively, all 55x55 neurons in each depth slice will now be using the same parameters. (In practice during backpropagation, every neuron in the volume will compute the gradient for its weights, but these gradients will be added up across each depth slice and only update a single set of weights per slice.)
 
-### 1.4 Examples
+### 2.4 Examples
 Suppose that the input volume `X` has shape `X.shape: (11,11,4)`. Suppose further that we use no zero padding (***P=0***), that the filter size is ***F=5***, and that the stride is ***S=2***. The output volume would therefore have spatial size (***11-5***)/***2+1 = 4***, giving a volume with width and height of 4. The activation map in the output volume (call it `V`) would then look as follows (only some of the elements are computed in this example):
 
 `V[0,0,0] = np.sum(X[:5,:5,:] * W0) + b0`  
@@ -106,7 +115,7 @@ A more concrete example is shown below. The input volume (in blue), the weight v
 
 <p align='center'><img src='/images/conv example.png' width="80%"></p><p align='center'>Convolutional Layer</p>
 
-### 1.5 Implementation
+### 2.5 Implementation
 #### Matrix Multiplication
 The convolution operation essentially performs dot products between the filters and local regions of the input. The local regions in the input image are stretched out into columns in an operation commonly called **im2col**.
 
@@ -121,7 +130,7 @@ This approach has the downside that it can use a lot of memory, since some value
 #### Backpropagation
 ...
 
-## 2. Pooling Layer
+## 3. Pooling Layer
 It is common to periodically insert a **pooling layer** in-between successive convolutional layers in a ConvNet architecture. Its function is to progressively reduce the spatial size of the representation to reduce the amount of parameters and computation in the network, and hence to also limit the risk of overfitting. Reducing the input image size also makes the neural network tolerate a little bit of image shift (location invariance).
 
 Just like in convolutional layers, each neuron in a pooling layer is connected to the outputs of a limited number of neurons in the previous layer, located within a small rectangular receptive field. You must define its size, the stride, and the padding type, just like before. However, a pooling neuron has no weights; all it does is aggregate the inputs using an **aggregation function** such as the max or mean. Average pooling was often used historically but has recently fallen out of favor compared to the max pooling operation, which has been shown to work better in practice.
@@ -135,16 +144,72 @@ More generally, the pooling layer accepts a value of size ***W*** x ***H*** x **
 
 > Many people dislike the pooling operation and think that we can get away without it. To reduce the size of the representation they suggest using larger stride in convolutional layer once in a while. Discarding pooling layers has also been found to be important in training good generative models, such as variational autoencoders (VAEs) or generative adversarial networks (GANs). It seems likely that future architectures will feature very few to no pooling layers.
 
-## 3. Normalization Layer
+## 4. Normalization Layer
 
 
 
-## 4. Fully-connected layer
+## 5. Fully-connected layer
 
 
-## 5. TensorFlow Implementation
+## 6. TensorFlow Implementation
 
-"Valid" convolution: no padding.
-"Same" convolution: pad so that output size is the same as the input size.
+### 6.1 Convolutional Layer
+In TensorFlow, each **input image** is typically represented as a 3D tensor of shape `[height, width, channels]`. A **mini-batch** is represented as a 4D tensor of shape `[mini-batch size, height, width, channels]`. The **weights (filters)** of a convolutional layer are represented as a 4D tensor of shape `[filter height, filter weight, number of feature maps (number of filters), number of feature maps in the previous layer (number of filters in the previous layer)]`. The **bias** term of a convolutional layer is simply represented as a 1D tensor of shape `[number of feature maps]`.
+
+Let’s look at a simple example. The following code loads two sample images, using Scikit-Learn’s load_sample_images(). Then it creates two 7 × 7 filters (one with a vertical white line in the middle, and the other with a horizontal white line), and applies them to both images using a convolutional layer built using TensorFlow’s `conv2d()` function (with zero padding and a stride of 2).
+
+```python
+import numpy as np
+from sklearn.datasets import load_sample_images
+
+# Load sample images
+dataset = np.array(load_sample_images().images, dtype=np.float32)
+batch_size, height, width, channels = dataset.shape
+
+# Create 2 filters
+filters_test = np.zeros(shape=(7, 7, channels, 2), dtype=np.float32) filters_test[:, 3, :, 0] = 1   # vertical line
+filters_test[3, :, :, 1] = 1   # horizontal line
+
+# Create a graph with input X plus a convolutional layer applying the 2 filters
+X = tf.placeholder(tf.float32, shape=(None, height, width, channels))
+convolution = tf.nn.conv2d(X, filters, strides=[1,2,2,1], padding="SAME")
+
+with tf.Session() as sess:
+    output = sess.run(convolution, feed_dict={X: dataset})
+
+plt.imshow(output[0, :, :, 1]) # plot 1st image's 2nd feature map
+plt.show()
+```
+
+
+- Strides is a four-element 1D array, where the two central elements are the vertical and horizontal strides. The first and last elements must currently be equal to 1. They may one day be used to specify a batch stride (to skip some instances) and a channel stride (to skip some of the previous layer’s feature maps or channels).
+
+
+- Padding must be either "VALID" or "SAME":
+   - "Valid" convolution: no padding.
+   - "Same" convolution: pad so that output size is the same as the input size.
 
 <p align='center'><img src='/images/padding options.png' width="60%"></p><p align='center'>Padding options—input width =13, filter width =6, stride =5</p>
+
+
+### 6.2 Pooling Layer
+
+Here we implement a max pooling layer in TensorFlow. The following code creates a max pooling layer using a 2 × 2 kernel (filter), stride 2, and no padding, then applies it to all the images in the dataset:
+
+```python
+[...] # load the image dataset, just like above
+
+# Create a graph with input X plus a max pooling layer
+X = tf.placeholder(tf.float32, shape=(None, height, width, channels))
+max_pool = tf.nn.max_pool(X, ksize=[1,2,2,1], strides=[1,2,2,1],padding="VALID")
+
+with tf.Session() as sess:
+    output = sess.run(max_pool, feed_dict={X: dataset})
+
+plt.imshow(output[0].astype(np.uint8)) # plot the output for the 1st image
+plt.show()
+```
+
+The `ksize` argument contains the kernel shape along all four dimensions of the input tensor: `[batch size, height, width, channels]`. TensorFlow currently does not support pooling over multiple instances, so the first element of ksize must be equal to 1. Moreover, it does not support pooling over both the spatial dimensions (height and width) and the depth dimension, so either ksize[1] and ksize[2] must both be equal to 1, or ksize[3] must be equal to 1.
+
+To create an average pooling layer, just use the `avg_pool()` function instead of `max_pool()`.
