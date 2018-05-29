@@ -15,7 +15,7 @@ https://www.youtube.com/watch?v=Z91YCMvxdo0&list=PLBAGcD3siRDjBU8sKRk0zX9pMz9qeV
 
 ### Table of Contents:
 
-1. Overview
+> 1. Overview
 2. Convolutional Layer
 3. Pooling Layer
 4. Normalization Layer
