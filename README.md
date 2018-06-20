@@ -1,7 +1,7 @@
 # Convolutional Neural Networks (CNNs / ConvNets)
 
 
-### References:
+### Referencess:
 - http://cs231n.github.io/convolutional-networks/
 - Géron, Aurélien. Hands-on machine learning with Scikit-Learn and TensorFlow: concepts, tools, and techniques to build intelligent systems. " O'Reilly Media, Inc.", 2017.
 - Goodfellow, Ian, et al. Deep learning. Cambridge: MIT press, 2016.
